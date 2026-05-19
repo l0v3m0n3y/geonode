@@ -34,7 +34,7 @@ public class Geonode{
 
     }
 
-    public func get_servers_list(page: Int = 1,limit: Int =100) async throws -> Any {
+    public func get_servers_list(page: Int = 1,limit: Int = 100) async throws -> Any {
         let urlString = "\(api)/proxy-list?page=\(page)&limit=\(limit)"
         guard let url = URL(string: urlString) else {
             throw NSError(domain: "Invalid URL", code: -1)
