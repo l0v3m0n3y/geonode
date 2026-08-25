@@ -33,16 +33,27 @@ public class Geonode{
         ]
 
     }
-
-    public func get_servers_list(page: Int = 1,limit: Int = 100) async throws -> Any {
-        let urlString = "\(api)/proxy-list?page=\(page)&limit=\(limit)"
-        guard let url = URL(string: urlString) else {
+    
+    private func fetchJSON(from urlString: String,method: HTTPMethod = .get,body: Data? = nil,queryParameters: [String: String]? = nil) async throws -> Any {
+        var urlComponents = URLComponents(string: urlString)
+        if let queryParameters = queryParameters {
+            urlComponents?.queryItems = queryParameters.map { URLQueryItem(name: $0.key, value: $0.value) }
+        }
+        guard let url = urlComponents?.url else {
             throw NSError(domain: "Invalid URL", code: -1)
         }
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+        request.httpMethod = method.rawValue
         request.allHTTPHeaderFields = headers
+        if let body = body {
+            request.httpBody = body
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
         let (data, _) = try await URLSession.shared.data(for: request)
         return try JSONSerialization.jsonObject(with: data)
+    }
+
+    public func getServersList(page: Int = 1,limit: Int = 100) async throws -> Any {
+        return try await fetchJSON(from: "\(api)/proxy-list?page=\(page)&limit=\(limit)")
     }
 }
